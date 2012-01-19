@@ -16,6 +16,7 @@ use Time::HiRes 'sleep', 'time';
 use Data::Dumper;
 use POSIX 'WNOHANG', 'setsid';
 use CGI qw(:standard param escape unescape);
+use Parallel::ForkManager;
 
 use constant TRUE                 => 1;
 use constant DEBUG                => 0;
@@ -160,39 +161,53 @@ sub request_panels {
             my $db = eval { $source->open_database( $l, $length ) };
         }
 
-        #my $child = Bio::Graphics::Browser2::Render->fork();
+        my $child = Bio::Graphics::Browser2::Render->fork();
+#        my $pm = Parallel::ForkManager->new(MAX_PROCESSES);
+#        $pm->run_on_start(sub {
+#        	my ($pid) = @_;
+#        	warn "starting PID:$pid\n";
+#        	Bio::Graphics::Browser2::DataBase->clone_databases;
+#        });
+#		$pm->run_on_finish(sub {
+#        	my ($pid) = @_;
+#        	warn "finishing PID:$pid\n";
+#        });
 
-        #if ($child) {
-        #return $data_destinations;
-        #}
+
+        if ($child) {
+           return $data_destinations;
+        }
 
         #      open STDIN, "</dev/null" or die "Couldn't reopen stdin";
         #      open STDOUT,">/dev/null" or die "Couldn't reopen stdout";
         #      POSIX::setsid()          or die "Couldn't start new session";
         #
-        if ( $do_local && $do_remote ) {
+            if ( $do_local && $do_remote ) {
 
-            # if ( Bio::Graphics::Browser2::Render->fork() ) {
-            $self->run_local_requests( $data_destinations, $args,
-                $local_labels );
+                #if ( Bio::Graphics::Browser2::Render->fork() ) {
+                $self->run_local_requests( $data_destinations, $args,
+                    $local_labels );
 
-            # }
-            #          else {
-            #              $self->run_remote_requests( $data_destinations,
-            #					  $args,
-            #					  $remote_labels );
-            #          }
-        }
-        elsif ($do_local) {
-            $self->run_local_requests( $data_destinations, $args,
-                $local_labels );
-        }
-        elsif ($do_remote) {
-            $self->run_remote_requests( $data_destinations, $args,
-                $remote_labels );
-        }
+                #}
+                #          else {
+                #              $self->run_remote_requests( $data_destinations,
+                #					  $args,
+                #					  $remote_labels );
+                #          }
+            }
+            elsif ($do_local) {
+                $self->run_local_requests( $data_destinations, $args,
+                    $local_labels );
+            }
+            elsif ($do_remote) {
+                $self->run_remote_requests( $data_destinations, $args,
+                    $remote_labels );
+            }
+            #$pm->finish;
+            #$pm->wait_all_children;
+        
 
-        #CORE::exit 0;
+        CORE::exit 0;
     }
 
     else {    # not deferred
@@ -2233,8 +2248,10 @@ sub create_panel_args {
         -start => $seg_start,
         -end   => $seg_stop,
         -stop  => $seg_stop,          #backward compatibility with old bioperl
-        -key_color => $source->global_setting('key bgcolor') || 'moccasin',
-        -bgcolor => $source->global_setting("$section bgcolor") || 'wheat',
+        -key_color => $source->global_setting('key bgcolor')
+            || 'moccasin',
+        -bgcolor => $source->global_setting("$section bgcolor")
+            || 'wheat',
         -width => $section eq 'detail'
         ? $self->get_detail_width_no_pad
         : $settings->{width},
@@ -2242,15 +2259,19 @@ sub create_panel_args {
         -suppress_key => 1,
         -empty_tracks => $source->global_setting('empty_tracks')
             || DEFAULT_EMPTYTRACKS,
-        -pad_top               => $image_class->gdMediumBoldFont->height + 2,
-        -pad_bottom            => 3,
-        -image_class           => $image_class,
-        -postgrid              => $postgrid,
-        -background            => $args->{background} || '',
-        -truecolor             => $source->global_setting('truecolor') || 0,
-        -map_fonts_to_truetype => $source->global_setting('truetype') || 0,
-        -extend_grid           => 1,
-        -gridcolor => $source->global_setting('grid color') || 'lightcyan',
+        -pad_top     => $image_class->gdMediumBoldFont->height + 2,
+        -pad_bottom  => 3,
+        -image_class => $image_class,
+        -postgrid    => $postgrid,
+        -background  => $args->{background}
+            || '',
+        -truecolor => $source->global_setting('truecolor')
+            || 0,
+        -map_fonts_to_truetype => $source->global_setting('truetype')
+            || 0,
+        -extend_grid => 1,
+        -gridcolor   => $source->global_setting('grid color')
+            || 'lightcyan',
         -gridmajorcolor => $source->global_setting('grid major color')
             || 'cyan',
         @pass_thru_args
@@ -2367,8 +2388,8 @@ sub create_track_args {
 
         $left_label++
             if $source->semantic_setting(
-                    $label => 'label_transcripts',
-                    $length
+            $label => 'label_transcripts',
+            $length
             );
 
         my $group_label
@@ -2430,7 +2451,7 @@ sub subtrack_manager {
     return $self->{_stt}{$label} if exists $self->{_stt}{$label};
     return $self->{_stt}{$label} = undef
         if $self->source->show_summary( $label, $self->vis_length,
-                $self->settings );
+        $self->settings );
     return $self->{_stt}{$label}
         = Bio::Graphics::Browser2::Render->create_subtrack_manager( $label,
         $self->source, $self->settings );
