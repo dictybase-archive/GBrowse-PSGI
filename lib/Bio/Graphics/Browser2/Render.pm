@@ -3979,20 +3979,20 @@ sub fcgi_request {
 sub fork {
     my $self = shift;
 
-    $self->prepare_modperl_for_fork();
-    $self->prepare_fcgi_for_fork('starting');
+    #$self->prepare_modperl_for_fork();
+    #$self->prepare_fcgi_for_fork('starting');
 
     my $child = CORE::fork();
     print STDERR "forked $child" if DEBUG;
     die "Couldn't fork: $!" unless defined $child;
 
     if ($child) { # parent process
-	$self->prepare_fcgi_for_fork('parent');
+	#$self->prepare_fcgi_for_fork('parent');
     }
 
     else {
 	Bio::Graphics::Browser2::DataBase->clone_databases();
-	Bio::Graphics::Browser2::Render->prepare_fcgi_for_fork('child');
+	#Bio::Graphics::Browser2::Render->prepare_fcgi_for_fork('child');
 	if (ref $self) {
 	    $self->userdb->clone_database()      if $self->userdb;
 	    $self->user_tracks->clone_database() if $self->user_tracks;

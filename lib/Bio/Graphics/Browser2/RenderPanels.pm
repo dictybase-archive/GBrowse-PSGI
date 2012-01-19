@@ -164,21 +164,21 @@ sub request_panels {
 	  return $data_destinations;
       }
 
-      open STDIN, "</dev/null" or die "Couldn't reopen stdin";
-      open STDOUT,">/dev/null" or die "Couldn't reopen stdout";
-      POSIX::setsid()          or die "Couldn't start new session";
-
+#      open STDIN, "</dev/null" or die "Couldn't reopen stdin";
+#      open STDOUT,">/dev/null" or die "Couldn't reopen stdout";
+#      POSIX::setsid()          or die "Couldn't start new session";
+#
       if ( $do_local && $do_remote ) {
-          if ( Bio::Graphics::Browser2::Render->fork() ) {
+         # if ( Bio::Graphics::Browser2::Render->fork() ) {
               $self->run_local_requests( $data_destinations,
 					 $args,
 					 $local_labels );
-          }
-          else {
-              $self->run_remote_requests( $data_destinations, 
-					  $args,
-					  $remote_labels );
-          }
+         # }
+#          else {
+#              $self->run_remote_requests( $data_destinations, 
+#					  $args,
+#					  $remote_labels );
+#          }
       }
       elsif ($do_local) {
           $self->run_local_requests( $data_destinations, $args,$local_labels );
@@ -1385,13 +1385,13 @@ sub run_local_requests {
 
     my (%children,%reaped);
 
-    local $SIG{CHLD} = sub {
-	while ((my $pid = waitpid(-1, WNOHANG)) > 0) {
-	    warn "[$$] reaped child $pid" if DEBUG;
-	    $reaped{$pid}++;
-	    delete $children{$pid} if $children{$pid};
-	}
-    };
+#    local $SIG{CHLD} = sub {
+#	while ((my $pid = waitpid(-1, WNOHANG)) > 0) {
+#	    warn "[$$] reaped child $pid" if DEBUG;
+#	    $reaped{$pid}++;
+#	    delete $children{$pid} if $children{$pid};
+#	}
+#    };
 
     my $max_processes = $self->source->global_setting('max_render_processes')
 	|| MAX_PROCESSES;
@@ -1403,18 +1403,18 @@ sub run_local_requests {
 
 	# don't let there be more than this many processes 
 	# running simultaneously
-	while ((my $c = keys %children) >= $max_processes) {
-	    warn "[$$] too many processes ($c), sleeping" if DEBUG;
-	    sleep 1;
-	}
+#	while ((my $c = keys %children) >= $max_processes) {
+#	    warn "[$$] too many processes ($c), sleeping" if DEBUG;
+#	    sleep 1;
+#	}
 
-	my $child = Bio::Graphics::Browser2::Render->fork();
-	croak "Can't fork: $!" unless defined $child;
-	if ($child) {
-	    warn "Launched rendering process $child for $label" if DEBUG;
-	    $children{$child}++ unless $reaped{$child}; # in case child was reaped before it was sown
-	    next;
-	}
+#	my $child = Bio::Graphics::Browser2::Render->fork();
+#	croak "Can't fork: $!" unless defined $child;
+#	if ($child) {
+#	    warn "Launched rendering process $child for $label" if DEBUG;
+#	    $children{$child}++ unless $reaped{$child}; # in case child was reaped before it was sown
+#	    next;
+#	}
 
 	(my $base = $label) =~ s/:(overview|region|details?)$//;
 	warn "label=$label, base=$base, file=$feature_files->{$base}" if DEBUG;
@@ -1442,7 +1442,7 @@ sub run_local_requests {
 	my $time = time();
 	eval {
 	    local $SIG{ALRM}    = sub { warn "alarm clock"; die "timeout" };
-	    alarm($timeout);
+#	    alarm($timeout);
 
 	    $requests->{$label}->lock();
 	    my ($gd,$map,$titles);
@@ -1513,9 +1513,9 @@ sub run_local_requests {
 	    }
 
 	    $requests->{$label}->put_data($gd, $map, $titles );
-	    alarm(0);
+#	    alarm(0);
 	};
-	alarm(0);
+#	alarm(0);
 
 	my $elapsed = time()-$time;
 	warn "render($label): $elapsed seconds ", ($@ ? "(error)" : "(ok)") if BENCHMARK;
@@ -1528,10 +1528,10 @@ sub run_local_requests {
 		$requests->{$label}->flag_error($@);
 	    }
 	}
-	CORE::exit 0; # in child;
+#	CORE::exit 0; # in child;
     }
-    warn "waiting for children" if DEBUG;
-    sleep while %children;
+#    warn "waiting for children" if DEBUG;
+#    sleep while %children;
     warn "done waiting" if DEBUG;
     my $elapsed = time() - $time;
     warn "[$$] run_local_requests (@$labels): $elapsed seconds" if DEBUG;
