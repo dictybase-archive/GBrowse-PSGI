@@ -161,7 +161,7 @@ sub request_panels {
             my $db = eval { $source->open_database( $l, $length ) };
         }
 
-        my $child = Bio::Graphics::Browser2::Render->fork();
+      #  my $child = Bio::Graphics::Browser2::Render->fork();
 #        my $pm = Parallel::ForkManager->new(MAX_PROCESSES);
 #        $pm->run_on_start(sub {
 #        	my ($pid) = @_;
@@ -174,9 +174,9 @@ sub request_panels {
 #        });
 
 
-        if ($child) {
-           return $data_destinations;
-        }
+       # if ($child) {
+       #    return $data_destinations;
+       # }
 
         #      open STDIN, "</dev/null" or die "Couldn't reopen stdin";
         #      open STDOUT,">/dev/null" or die "Couldn't reopen stdout";
@@ -207,15 +207,17 @@ sub request_panels {
             #$pm->wait_all_children;
         
 
-        CORE::exit 0;
+       # CORE::exit 0;
     }
 
     else {    # not deferred
         $self->run_local_requests( $data_destinations, $args, $local_labels );
         $self->run_remote_requests( $data_destinations, $args,
             $remote_labels );
-        return $data_destinations;
+       # return $data_destinations;
     }
+
+       return $data_destinations;
 }
 
 sub render_panels {
