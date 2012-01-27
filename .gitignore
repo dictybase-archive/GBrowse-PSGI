@@ -8,6 +8,7 @@ MYMETA*
 META*
 tmp
 log
+data
 *DS_Store*
 locallib
 gbrowse
