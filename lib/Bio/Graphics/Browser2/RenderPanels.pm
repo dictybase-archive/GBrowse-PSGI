@@ -16,7 +16,6 @@ use Time::HiRes 'sleep', 'time';
 use Data::Dumper;
 use POSIX 'WNOHANG', 'setsid';
 use CGI qw(:standard param escape unescape);
-use Parallel::ForkManager;
 
 use constant TRUE                 => 1;
 use constant DEBUG                => 0;
