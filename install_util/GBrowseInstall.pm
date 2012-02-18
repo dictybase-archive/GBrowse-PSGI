@@ -469,18 +469,29 @@ END
 
 sub ACTION_standalone_install {
     my ($self) = @_;
+    my $version = $self->args('gbrowse_version') || $self->dist_version;
     $ENV{GBROWSE_ROOT} = catdir($self->base_dir, 'gbrowse');
-    $ENV{GBROWSE_VERSION} = $self->dist_version;
+    $ENV{GBROWSE_VERSION} = $version;
     my $install_dir
-        = catdir( $self->base_dir, 'gbrowse', $self->dist_version );
-    $self->install_path->{conf}      = catfile( $install_dir, 'conf' );
-    $self->install_path->{htdocs}    = catfile( $install_dir, 'html' );
-    $self->install_path->{'cgi-bin'} = catfile( $install_dir, 'cgi' );
-    $self->install_path->{tmp}       = catfile( $install_dir, 'tmp' );
+        = catdir( $self->base_dir, 'gbrowse', $version );
+    $self->install_path->{conf}      = catdir( $install_dir, 'conf' );
+    $self->install_path->{htdocs}    = catdir( $install_dir, 'html' );
+    $self->install_path->{'cgi-bin'} = catdir( $install_dir, 'cgi' );
+    $self->install_path->{tmp}       = catdir( $install_dir, 'tmp' );
     $self->install_path->{pesistent}
-        = catfile( $install_dir, 'tmp', 'persistent' );
-    $self->install_path->{databases} = catfile( $install_dir, 'databases' );
+        = catdir( $install_dir, 'tmp', 'persistent' );
+    $self->install_path->{databases} = catdir( $install_dir, 'databases' );
     $self->SUPER::ACTION_install();
+
+	my $htdocs_i = catdir( $self->install_path->{htdocs}, 'i' );
+    my $images = catdir( $self->install_path->{tmp}, 'images' );
+    symlink( $images, $htdocs_i );    # so symlinkifowner match works!
+
+    my $persistent = $self->install_path->{'persistent'};
+    my $sessions   = catdir( $persistent, 'sessions' );
+    my $userdata   = catdir( $persistent, 'userdata' );
+    mkpath( [ $sessions, $userdata ] );
+
 }
 
 sub ACTION_install {
