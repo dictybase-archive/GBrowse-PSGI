@@ -14,6 +14,7 @@ use Carp qw(croak cluck);
 use CGI qw(:standard escape start_table end_table);
 use Text::Tabs;
 use POSIX qw(floor);
+use URI;
 
 use constant JS    => '/gbrowse2/js';
 use constant ANNOTATION_EDIT_ROWS => 25;
@@ -2433,7 +2434,8 @@ sub source_menu {
       @sources          = sort {$descriptions{$a} cmp $descriptions{$b}} (@sources,$current_source);
   }
 
-  my $base_url = CGI::url();
+  my $uri = URI->new(CGI::url());
+  my $base_url = $uri->path;
   return b($self->translate('DATA_SOURCE')).br.
     ( $sources ?
       popup_menu(-name     => 'source',
