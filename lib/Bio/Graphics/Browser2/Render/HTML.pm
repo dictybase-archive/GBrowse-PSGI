@@ -2433,13 +2433,14 @@ sub source_menu {
       @sources          = sort {$descriptions{$a} cmp $descriptions{$b}} (@sources,$current_source);
   }
 
+  my $base_url = CGI::url();
   return b($self->translate('DATA_SOURCE')).br.
     ( $sources ?
       popup_menu(-name     => 'source',
 		 -values   => \@sources,
 		 -labels   => \%descriptions,
 		 -default  => $self->data_source->name,
-		 -onChange => 'this.form.submit()',
+		 -onChange => 'window.location='."'".$base_url."/'".' + this.value;' ,
 		)
 	: $globals->data_source_description($self->session->source)
       );
