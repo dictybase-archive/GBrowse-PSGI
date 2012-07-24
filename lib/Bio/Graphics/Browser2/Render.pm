@@ -27,6 +27,7 @@ use Bio::Graphics::Browser2::UserTracks;
 use Bio::Graphics::Browser2::UserDB;
 use Bio::Graphics::Browser2::Session;
 use POSIX ":sys_wait_h";
+use URI;
 
 use constant VERSION              => 2.0;
 use constant DEBUG                => 0;
@@ -4182,7 +4183,8 @@ sub image_link {
     my $keystyle = $settings->{ks};
     my $grid     = $settings->{grid} || 0;
     my ( $base, $s ) = $self->globals->gbrowse_base;
-    my $url    = "$base/gbrowse_img/$s";
+    $s = $source if !$s;
+    my $url    = URI->new($base)->path.'/gbrowse_img/'.$s;
     my $tracks = $settings->{tracks};
     my $width  = param('view_width') || $settings->{width};
     my $start  = param('view_start') || $settings->{view_start};
