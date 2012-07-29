@@ -7,7 +7,7 @@ use warnings;
 
 use CGI::Session;
 use CGI::Cookie;
-use Fcntl 'LOCK_EX','LOCK_SH';
+use Fcntl 'LOCK_EX','LOCK_SH', 'LOCK_NB';
 use File::Spec;
 use File::Path 'mkpath';
 use Digest::MD5 'md5_hex';
@@ -180,7 +180,8 @@ sub lock_nfs {
     my $lockpath = File::Spec->catfile($lockdir,$lockfile);
     my $lock     = File::NFSLock->new(
 	{file               => $lockpath,
-	 lock_type          => $type eq 'exclusive' ? LOCK_EX : LOCK_SH,
+	 #lock_type          => $type eq 'exclusive' ? LOCK_EX : LOCK_SH,
+	 lock_type          => LOCK_SH,
 	 blocking_timeout   => LOCK_TIMEOUT,  # 2 sec
 	 stale_lock_timeout => 60, # 1 min
 	});
@@ -204,6 +205,7 @@ sub lock_mysql {
 sub lock_sh {
     shift->lock('shared',@_);
 }
+
 sub lock_ex {
     shift->lock('exclusive',@_);
 }

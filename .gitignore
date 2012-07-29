@@ -8,11 +8,14 @@ MYMETA*
 META*
 tmp
 log
+data
+datadump
 *DS_Store*
 locallib
 gbrowse
 *.c
 *.o
+INSTALL.SKIP
 
 #exclude Build.PL
 !Build.PL
