@@ -255,7 +255,6 @@ sub make_markup {
       my $start = $p->start - $segment_start;
       my $end   = $start + $p->length;
 
-      $start++ if $p->strand < 0;
       ($start,$end) = map {$segment_length-$_} ($end,$start) if $flip;
 
       warn("$p ". $p->location->to_FTstring() . " type is ".$p->primary_tag) if DEBUG;
