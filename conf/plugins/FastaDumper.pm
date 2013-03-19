@@ -231,13 +231,15 @@ sub make_markup {
   my @regions_to_markup;
 
   warn("segment length is ".$segment->length()."\n") if DEBUG;
-  my $iterator = $segment->get_seq_stream(-types=>$types,
-					  -automerge=>1) or return;
+  my @feats = map { $segment->features(-type => $_) } @$types;
+  return if !@feats;
+
   my $segment_start = $segment->start;
   my $segment_end   = $segment->end;
   my $segment_length = $segment->length;
 
-  while (my $markupregion = $iterator->next_seq) {
+
+  for my $markupregion (@feats) {
 
     warn "got feature $markupregion\n" if DEBUG;
 
@@ -253,7 +255,6 @@ sub make_markup {
       my $start = $p->start - $segment_start;
       my $end   = $start + $p->length;
 
-      $start++ if $p->strand < 0;
       ($start,$end) = map {$segment_length-$_} ($end,$start) if $flip;
 
       warn("$p ". $p->location->to_FTstring() . " type is ".$p->primary_tag) if DEBUG;
